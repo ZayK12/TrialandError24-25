@@ -1,0 +1,133 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       27kazi-zayyaan                                            */
+/*    Created:      9/17/2024, 7:50:37 AM                                     */
+/*    Description:  V5 project                                                */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+
+#include "vex.h"
+
+using namespace vex;
+
+// A global instance of competition
+competition Competition;
+
+// define your global instances of motors and other devices here
+
+controller controller_1 = controller();
+motor BackRight = motor(PORT11, ratio18_1, true);
+
+motor FrontRight = motor(PORT12, ratio18_1, false);
+
+motor BackLeft = motor(PORT19, ratio18_1, false);
+
+motor FrontLeft = motor(PORT18, ratio18_1, true);
+
+
+motor grabber = motor(PORT10, ratio36_1, true);
+
+
+
+
+/*---------------------------------------------------------------------------*/
+/*                          Pre-Autonomous Functions                         */
+/*                                                                           */
+/*  You may want to perform some actions before the competition starts.      */
+/*  Do them in the following function.  You must return from this function   */
+/*  or the autonomous and usercontrol tasks will not be started.  This       */
+/*  function is only called once after the V5 has been powered on and        */
+/*  not every time that the robot is disabled.                               */
+/*---------------------------------------------------------------------------*/
+
+void pre_auton(void) {
+  FrontRight.setMaxTorque(100, percent);
+  FrontLeft.setMaxTorque(100, percent);
+  BackRight.setMaxTorque(100, percent);
+  BackLeft.setMaxTorque(100, percent);
+  grabber.setMaxTorque(100, percent);
+  // All activities that occur before the competition starts
+  // Example: clearing encoders, setting servo positions, ...
+}
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*                              Autonomous Task                              */
+/*                                                                           */
+/*  This task is used to control your robot during the autonomous phase of   */
+/*  a VEX Competition.                                                       */
+/*                                                                           */
+/*  You must modify the code to add your own robot specific commands here.   */
+/*---------------------------------------------------------------------------*/
+
+void autonomous(void) {
+  // ..........................................................................
+  // Insert autonomous user code here.
+  // ..........................................................................
+}
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*                              User Control Task                            */
+/*                                                                           */
+/*  This task is used to control your robot during the user control phase of */
+/*  a VEX Competition.                                                       */
+/*                                                                           */
+/*  You must modify the code to add your own robot specific commands here.   */
+/*---------------------------------------------------------------------------*/
+
+void usercontrol(void) {
+  // User control code here, inside the loop
+  while (1) {
+    FrontRight.setVelocity((((controller_1.Axis3.position()*-1) - controller_1.Axis1.position()) - controller_1.Axis4.position()) , percent);
+    FrontLeft.setVelocity((((controller_1.Axis3.position()*-1) + controller_1.Axis1.position()) + controller_1.Axis4.position()), percent);
+    BackRight.setVelocity((((controller_1.Axis3.position()*-1) + controller_1.Axis1.position()) - controller_1.Axis4.position()), percent);
+    BackLeft.setVelocity((((controller_1.Axis3.position()*-1) - controller_1.Axis1.position()) + controller_1.Axis4.position()), percent);
+    FrontRight.spin(forward);
+    FrontLeft.spin(forward);
+    BackRight.spin(forward);
+    BackLeft.spin(forward);
+    // This is the main execution loop for the user control program.
+    // Each time through the loop your program should update motor + servo
+    // values based on feedback from the joysticks.
+
+    // ........................................................................
+    // Insert user code here. This is where you use the joystick values to
+    // update your motors, etc.
+    // ........................................................................
+
+    wait(20, msec); // Sleep the task for a short amount of time to
+                    // prevent wasted resources.
+  }
+}
+void buttonPressedA()
+{
+  grabber.setVelocity(100, percent);
+  grabber.spinToPosition(100, degrees);
+  grabber.setStopping(hold);
+  grabber.stop();
+}
+void buttonPressedB()
+{
+  grabber.spinToPosition(0, degrees);
+  grabber.setVelocity(0, percent);
+}
+//
+// Main will set up the competition functions and callbacks.
+//
+int main() {
+  // Set up callbacks for autonomous and driver control periods.
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
+  controller_1.ButtonA.pressed(buttonPressedA);
+  controller_1.ButtonB.pressed(buttonPressedB);
+  // Run the pre-autonomous function.
+  pre_auton();
+
+  // Prevent main from exiting with an infinite loop.
+  while (true) {
+    wait(100, msec);
+    
+  }
+}
